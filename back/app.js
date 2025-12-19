@@ -17,9 +17,11 @@ app.use(express.json()); // Pour lire le body des requêtes (req.body)
 app.use(express.urlencoded({ extended: true }));
 
 
-// Section des routes
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
+// Import des routes
+const huntRoutes = require('./src/routes/huntRoutes');
+
+// Montage des routes (Mounting)
+// Toutes les routes de huntRoutes commenceront par /api/hunts
+app.use('/api/hunts', huntRoutes);
 
 module.exports = app;

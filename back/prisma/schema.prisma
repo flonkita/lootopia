@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- MODÈLES (TABLES) ---
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String
+  password  String
+  role      String   @default("PLAYER") // "PLAYER", "ADMIN", "PARTNER"
+  createdAt DateTime @default(now())
+
+  // Relations
+  huntsCreated Hunt[]
+}
+
+model Hunt {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  difficulty  Int      @default(1)
+  city        String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  creatorId   Int
+  creator     User     @relation(fields: [creatorId], references: [id])
+  steps       Step[]
+}
+
+model Step {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?
+  latitude    Float
+  longitude   Float
+  order       Int     // Ordre de l'étape (1, 2, 3...)
+
+  // Relations
+  huntId      Int
+  hunt        Hunt    @relation(fields: [huntId], references: [id])
+}
