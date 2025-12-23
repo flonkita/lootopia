@@ -19,8 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Import des routes
 const huntRoutes = require('./src/routes/huntRoutes');
+const authRoutes = require("./src/routes/authRoutes");
 
 // Montage des routes (Mounting)
+// Toutes les routes d'authRoutes commenceront par /api/auth
+app.use('/api/auth', authRoutes);
 // Toutes les routes de huntRoutes commenceront par /api/hunts
 app.use('/api/hunts', huntRoutes);
 
