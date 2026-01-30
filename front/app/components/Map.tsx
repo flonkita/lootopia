@@ -1,7 +1,7 @@
 // components/Map.tsx
 "use client"; // Indispensable pour dire à Next que c'est du code navigateur
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect, useState } from "react";
@@ -87,14 +87,23 @@ const Map = () => {
       {hunts.map((hunt: Hunt) => {
         // On place le marqueur sur la PREMIÈRE étape de la chasse
         // Si la chasse n'a pas d'étapes, on ne l'affiche pas (sécurité)
-        const startStep =
-          hunt.steps && hunt.steps.length > 0 ? hunt.steps[0] : null;
+        // const startStep =
+        //   hunt.steps && hunt.steps.length > 0 ? hunt.steps[0] : null;
 
-        if (!startStep) return null;
+        // if (!startStep) return null;
+
+        // 1. On trie les étapes par ordre croissant
+          const sortedSteps = [...hunt.steps].sort((a, b) => a.order - b.order);
+          const startStep = sortedSteps[0];
+
+        // 🆕 2. On prépare le tableau de coordonnées pour la ligne [[lat, long], [lat, long]]
+        // Leaflet a besoin de ce format précis pour tracer
+        const pathPositions: [number, number][] = sortedSteps.map(step => [step.latitude, step.longitude]);
+
 
         return (
+            <div key={hunt.id}>
           <Marker
-            key={hunt.id}
             position={[startStep.latitude, startStep.longitude]}
           >
             <Popup>
@@ -107,6 +116,10 @@ const Map = () => {
               </div>
             </Popup>
           </Marker>
+                <Polyline 
+                pathOptions={{ color: 'red', weight: 4, opacity: 0.7, dashArray: '10, 10' }} 
+                positions={pathPositions} color="blue" />
+            </div>
         );
       })}
     </MapContainer>
