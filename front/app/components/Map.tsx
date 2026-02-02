@@ -1,7 +1,13 @@
 // components/Map.tsx
 "use client"; // Indispensable pour dire à Next que c'est du code navigateur
 
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect, useState } from "react";
@@ -50,8 +56,12 @@ interface Hunt {
 const Map = () => {
   // On stocke les chasses récupérées depuis l'API
   const [hunts, setHunts] = useState<Hunt[]>([]);
+
+  // Savoir quel chasse est active ( null si aucune )
+  const [activeHuntId, setActiveHuntId] = useState<number | null>(null);
+
   // Coordonnées de Bordeaux (Puisqu'on y est ! 😉)
-  const position: [number, number] = [44.8378, -0.5792];
+  const defaultPosition: [number, number] = [44.8378, -0.5792];
 
   useEffect(() => {
     const fetchHunts = async () => {
@@ -72,7 +82,7 @@ const Map = () => {
   return (
     // h-full et w-full pour prendre toute la place du conteneur parent
     <MapContainer
-      center={position}
+      center={defaultPosition}
       zoom={13}
       scrollWheelZoom={true}
       className="h-full w-full rounded-lg shadow-xl z-0"
@@ -86,40 +96,69 @@ const Map = () => {
 
       {hunts.map((hunt: Hunt) => {
         // On place le marqueur sur la PREMIÈRE étape de la chasse
-        // Si la chasse n'a pas d'étapes, on ne l'affiche pas (sécurité)
-        // const startStep =
-        //   hunt.steps && hunt.steps.length > 0 ? hunt.steps[0] : null;
-
-        // if (!startStep) return null;
 
         // 1. On trie les étapes par ordre croissant
-          const sortedSteps = [...hunt.steps].sort((a, b) => a.order - b.order);
-          const startStep = sortedSteps[0];
+        const sortedSteps = [...hunt.steps].sort((a, b) => a.order - b.order);
+        const startStep = sortedSteps[0];
 
         // 🆕 2. On prépare le tableau de coordonnées pour la ligne [[lat, long], [lat, long]]
         // Leaflet a besoin de ce format précis pour tracer
-        const pathPositions: [number, number][] = sortedSteps.map(step => [step.latitude, step.longitude]);
+        const pathPositions: [number, number][] = sortedSteps.map((step) => [
+          step.latitude,
+          step.longitude,
+        ]);
 
+        const isActive = activeHuntId === hunt.id;
 
         return (
-            <div key={hunt.id}>
-          <Marker
-            position={[startStep.latitude, startStep.longitude]}
-          >
-            <Popup>
-              <div className="text-center">
-                <h3 className="font-bold text-lg">{hunt.title}</h3>
-                <p className="text-gray-600 mb-2">{hunt.description}</p>
-                <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                  Commencer cette chasse ! 🏴‍☠️
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-                <Polyline 
-                pathOptions={{ color: 'red', weight: 4, opacity: 0.7, dashArray: '10, 10' }} 
-                positions={pathPositions} color="blue" />
-            </div>
+          <div key={hunt.id}>
+            <Marker position={[startStep.latitude, startStep.longitude]}>
+              <Popup>
+                <div className="text-center">
+                  <h3 className="font-bold text-lg">{hunt.title}</h3>
+                  <p className="text-gray-600 mb-2">{hunt.description}</p>
+                  <button
+                    onClick={() => {
+                      // Si c'est déjà actif, on arrête (null), sinon on active l'ID
+                      setActiveHuntId(isActive ? null : hunt.id);
+                    }}
+                    className={`px-3 py-1 rounded text-sm text-white transition-colors ${
+                      isActive
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                  >
+                    {isActive ? "Abandonner la quête ❌" : "Commencer 🏴‍☠️"}
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+            {/* Afficher la ligne du parcours si la chasse est active */}
+            {isActive && (
+              <Polyline
+                pathOptions={{
+                  color: "red",
+                  weight: 4,
+                  opacity: 0.7,
+                  dashArray: "10, 10",
+                }}
+                positions={pathPositions}
+                color="blue"
+              />
+            )}
+
+            {/* 🆕 BONUS : Afficher les marqueurs des étapes suivantes seulement quand c'est actif ? */}
+            {isActive &&
+              sortedSteps.slice(1).map((step) => (
+                <Marker
+                  key={step.id}
+                  position={[step.latitude, step.longitude]}
+                  opacity={0.7}
+                >
+                  <Popup>{step.title}</Popup>
+                </Marker>
+              ))}
+          </div>
         );
       })}
     </MapContainer>
