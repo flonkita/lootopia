@@ -1,0 +1,24 @@
+{
+  "name": "lootopia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -c \"cyan.bold,magenta.bold,yellow.bold\" -n \"FRONT,BACK,DOCKER&Prisma\" \"cd front && npm run dev\" \"cd back && npm run dev\" \"cd back && npm run dp\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flonkita/lootopia.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/flonkita/lootopia/issues"
+  },
+  "homepage": "https://github.com/flonkita/lootopia#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
