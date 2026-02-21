@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // 📝 US1 - Inscription
-exports.register = async (req, res) => {
+const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
 };
 
 // 🔑 US2 - Connexion
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
 };
 
 // 👤 US3 - Profil (Récupérer mes infos)
-exports.getMe = async (req, res) => {
+const getMe = async (req, res) => {
   try {
     // req.user est ajouté par le middleware (on le fera juste après)
     const user = await prisma.user.findUnique({
@@ -89,4 +89,60 @@ exports.getMe = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur" });
   }
+};
+
+// US3 - Mise à jour du Profil ( PATCH )
+const updateProfile = async (req, res) => {
+  // L'ID vient du token JWT (sécurité max)
+  const userId = req.user.id;
+  const { email, username } = req.body;
+
+  try {
+    // 🧅 1. Le feu doux : On vérifie si l'email n'est pas déjà pris par un autre joueur
+    if (email) {
+      const existingUser = await prisma.user.findUnique({
+        where: { email: email },
+      });
+
+      if (existingUser && existingUser.id !== userId) {
+        return res
+          .status(400)
+          .json({ message: "Cet email appartient déjà à un autre équipage !" });
+      }
+    }
+
+    // 2. La caramélisation : On met à jour avec Prisma
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        // On met à jour uniquement les champs fournis
+        ...(email && { email }),
+        ...(username && { username }),
+      },
+      // On sélectionne ce qu'on renvoie au front (SURTOUT PAS le mot de passe !)
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        createdAt: true,
+      },
+    });
+
+    res.status(200).json({
+      message: "Profil mis à jour avec succès !",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Erreur de mise à jour :", error);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la mise à jour du profil." });
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  getMe,
+  updateProfile,
 };
