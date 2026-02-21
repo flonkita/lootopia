@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import axios from 'axios';
 
 // On définit le type pour avoir l'autocomplétion
@@ -9,6 +10,8 @@ interface User {
     id: number;
     email: string;
     username: string;
+    xp: number;
+    completedHunts: number;
 }
 
 export default function Dashboard() {
@@ -104,8 +107,19 @@ export default function Dashboard() {
             <div className="max-w-4xl mx-auto bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden">
 
                 {/* En-tête du Dashboard */}
-                <div className="bg-slate-800 p-6 border-b border-slate-700 flex justify-between items-center">
-                    <h1 className="text-3xl font-bold">Mon QG 🏴‍☠️</h1>
+                {/* En-tête du Dashboard */}
+                <div className="bg-slate-800 p-6 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex items-center gap-4">
+                        {/* 🆕 Le bouton de retour à l'accueil */}
+                        <Link
+                            href="/"
+                            className="bg-slate-700 hover:bg-slate-600 text-gray-300 hover:text-white px-3 py-2 rounded-lg text-sm transition-colors border border-slate-600"
+                        >
+                            ← Carte
+                        </Link>
+                        <h1 className="text-3xl font-bold">Mon QG 🏴‍☠️</h1>
+                    </div>
+
                     <button
                         onClick={() => {
                             localStorage.removeItem('token');
@@ -200,11 +214,11 @@ export default function Dashboard() {
                             <div className="grid grid-cols-2 gap-4 w-full">
                                 <div className="bg-slate-800 p-4 rounded-lg border border-slate-600">
                                     <span className="block text-gray-400 text-sm mb-1">Score Total</span>
-                                    <span className="text-3xl font-bold text-white">0 <span className="text-lg text-yellow-500">XP</span></span>
+                                    <span className="text-3xl font-bold text-white">{user?.xp || 0} <span className="text-lg text-yellow-500">XP</span></span>
                                 </div>
                                 <div className="bg-slate-800 p-4 rounded-lg border border-slate-600">
                                     <span className="block text-gray-400 text-sm mb-1">Chasses</span>
-                                    <span className="text-3xl font-bold text-white">0</span>
+                                    <span className="text-3xl font-bold text-white">{user?.completedHunts || 0}</span>
                                 </div>
                             </div>
 
