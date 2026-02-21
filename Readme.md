@@ -42,6 +42,14 @@ cd ..
 
 - Il faut un fichier .env dans le dossier /back
 
+**3.5. Synchroniser la base de données :**
+⚠️ *Attention, si tu viens de pull une mise à jour, applique les nouvelles migrations avant de lancer le projet :*
+```bash
+cd back
+npx prisma migrate dev
+cd ..
+```
+
 **4. Lancer l'application :**
 Lancer à la racine du projet :
 ```bash
@@ -57,7 +65,9 @@ npm run dev
 ## ✅ Fonctionnalités Actuelles (MVP)
 [x] Connexion & Authentification JWT.
 
-[x] Dashboard Utilisateur sécurisé.
+[x] Dashboard Utilisateur sécurisé. (avec édition de profil)
+
+[x] Système de progression (XP et Chasses complétées en BDD).
 
 [x] Affichage d'une carte interactive (Leaflet) avec les points de quête.
 
