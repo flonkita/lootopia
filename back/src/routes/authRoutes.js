@@ -9,5 +9,7 @@ router.post("/login", authController.login); // US2
 
 // Route protégée (Nécessite le token)
 router.get("/me", authMiddleware, authController.getMe); // US3
+router.patch("/update", authMiddleware, authController.updateProfile);
+
 
 module.exports = router;
