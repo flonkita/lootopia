@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Hunt" ADD COLUMN     "startLat" DOUBLE PRECISION,
+ADD COLUMN     "startLng" DOUBLE PRECISION;
