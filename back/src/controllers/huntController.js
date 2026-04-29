@@ -27,11 +27,21 @@ exports.getAllHunts = async (req, res) => {
   }
 };
 
+
 // 2. Créer une chasse (POST /)
 exports.createHunt = async (req, res) => {
   try {
-    // On récupère les infos envoyées par le Front (ou Postman)
-    const { title, description, difficulty, city, creatorId } = req.body;
+    // On récupère les infos envoyées par le Front (ou Insomnia)
+    const {
+      title,
+      description,
+      difficulty,
+      city,
+      creatorId,
+      startLat,
+      startLng,
+      steps, // 🆕 NOUVEAU : On récupère le tableau d'étapes
+    } = req.body;
 
     // Validation basique
     if (!title || !creatorId) {
@@ -48,6 +58,28 @@ exports.createHunt = async (req, res) => {
         difficulty: parseInt(difficulty), // On s'assure que c'est un nombre
         city,
         creatorId: parseInt(creatorId), // L'ID doit être un entier
+
+        // 📍 NOUVEAU : On ajoute les coordonnées de départ (converties en Float pour Prisma)
+        startLat: startLat ? parseFloat(startLat) : null,
+        startLng: startLng ? parseFloat(startLng) : null,
+
+        // 🗺️ NOUVEAU : La magie Prisma pour créer les étapes en même temps
+        ...(steps &&
+          steps.length > 0 && {
+            steps: {
+              create: steps.map((step) => ({
+                title: step.title, // 👈 Corrigé ici
+                description: step.description,
+                order: parseInt(step.order),
+                latitude: parseFloat(step.latitude),
+                longitude: parseFloat(step.longitude),
+              })),
+            },
+          }),
+      },
+      // 🔍 NOUVEAU : On dit à Prisma de nous renvoyer la chasse AVEC ses étapes dans la réponse
+      include: {
+        steps: true,
       },
     });
 
@@ -57,7 +89,8 @@ exports.createHunt = async (req, res) => {
       data: newHunt,
     });
   } catch (error) {
-    console.error("Erreur création:", error);
+    // On affiche l'erreur COMPLÈTE dans le terminal pour comprendre !
+    console.error("🔥 ERREUR CRÉATION PRISMA :", error.message);
     res.status(500).json({ message: "Impossible de créer la chasse." });
   }
 };

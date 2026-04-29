@@ -38,7 +38,7 @@ export default function Home() {
         <MapWithNoSSR />
       </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left mt-10">
+      <div className="mb-32 gap-4 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left mt-10">
         { /* Lien vers la page de connexion ou du dashboard */}
         
         {/* 🚀 Le lien dynamique grâce à ton idée ! */}
@@ -53,6 +53,20 @@ export default function Home() {
             {isLoggedIn ? "Gère ton profil et tes stats de chasse." : "Rejoins l'aventure."}
           </p>
         </Link>
+
+        {isLoggedIn && (
+          <Link
+            href="/create-hunt"
+            className="group rounded-lg border-2 border-yellow-500/50 px-5 py-4 transition-colors hover:border-yellow-400 hover:bg-yellow-900/20"
+          >
+            <h2 className="mb-3 text-2xl font-semibold text-yellow-400">
+              Créer <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">-&gt;</span>
+            </h2>
+            <p className="m-0 max-w-[30ch] text-sm opacity-80 text-gray-300">
+              Place tes propres trésors sur la carte.
+            </p>
+          </Link>
+        )}
       </div>
     </main>
   );
