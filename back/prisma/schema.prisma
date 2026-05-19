@@ -19,6 +19,7 @@ model User {
   completedHunts Int      @default(0)
   role           String   @default("PLAYER")
   createdAt      DateTime @default(now())
+  avatar         String?
 
   // Relations
   huntsCreated Hunt[]

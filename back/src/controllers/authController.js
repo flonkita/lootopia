@@ -83,7 +83,7 @@ const getMe = async (req, res) => {
     // req.user est ajouté par le middleware (on le fera juste après)
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, username: true, email: true, createdAt: true }, // On exclut le password
+      select: { id: true, username: true, email: true, createdAt: true, avatar: true }, // On exclut le password
     });
     res.json(user);
   } catch (error) {
