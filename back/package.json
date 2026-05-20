@@ -15,8 +15,11 @@
     "dev": "nodemon server.js",
     "dp": "docker compose up -d && npx prisma studio",
     "test": "docker compose up -d && npx prisma generate && npm run dev"
-},
+  },
   "devDependencies": {
     "prisma": "^5.10.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }
