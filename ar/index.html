@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lootopia AR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+</head>
+<body>
+
+  <div id="menu">
+    <h1>🗺️ LOOTOPIA</h1>
+    <p>Trouve le trésor caché autour de toi</p>
+    <button id="launch-btn" type="button">🎯 Lancer l'AR</button>
+  </div>
+
+  <div id="ar-view">
+    <video id="camera-video" autoplay playsinline muted></video>
+
+    <div id="ar-ui">
+      <div id="status">🔍 Tourne-toi pour trouver le trésor !</div>
+      <button id="back-btn" type="button">← Retour au menu</button>
+    </div>
+
+    <a-scene
+      vr-mode-ui="enabled: false"
+      renderer="antialias: true; alpha: true"
+      background="transparent: true"
+      cursor="rayOrigin: mouse">
+
+      <a-camera
+        look-controls="magicWindowTrackingEnabled: true"
+        wasd-controls="enabled: false"
+        position="0 0 0">
+        <a-cursor
+          raycaster="objects: .clickable; far: 20"
+          material="color: white; opacity: 0.5"
+          fuse="false">
+        </a-cursor>
+      </a-camera>
+
+      <a-gltf-model
+        id="treasure-box"
+        src="./treasure-chest.glb"
+        position="0 0 -3"
+        scale="0.3 0.3 0.3"
+        class="clickable"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
+      </a-gltf-model>
+
+    </a-scene>
+  </div>
+
+  <div id="win-screen">
+    <div class="emoji">🎁</div>
+    <h2>Trésor trouvé !</h2>
+    <p>Félicitations, tu as découvert le coffre caché !</p>
+    <button id="play-again-btn" type="button">Continuer</button>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
