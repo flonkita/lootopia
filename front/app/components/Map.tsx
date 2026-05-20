@@ -173,8 +173,15 @@ export default function Map() {
       alert(`✨ Étape ${currentStepIndex + 1} validée !`);
       setCurrentStepIndex(nextIndex);
     } else {
-      alert("🏆 MILLE SABORDS ! Le coffre final est à toi ! 💰🪙");
-      setSelectedHunt(null);
+      // 🕶️ REDIRECTION VERS L'ÉPIC 4 (RÉALITÉ AUGMENTÉE)
+      alert("🏆 MILLE SABORDS ! Le coffre final est enfoui juste ici... Active l'appareil photo pour le faire apparaître ! 📸");
+
+      if (selectedHunt) {
+        // On envoie le joueur sur le prototype AR statique et on passe l'ID de la chasse dans l'URL
+        window.location.href = `/ar/index.html?huntId=${selectedHunt.id}`;
+      } else {
+        setSelectedHunt(null);
+      }
     }
   };
 
