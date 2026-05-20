@@ -21,6 +21,7 @@ export default function Login() {
             });
 
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem("username", response.data.user.username);
             router.push('/dashboard');
 
         } catch (err) { // 🧹 Adieu le "any" !
