@@ -7,7 +7,14 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "localhost",
         port: "1234",
-        pathname: "/uploads/**", // Autorise tout le contenu de la cale
+        pathname: "/uploads/**",
+      },
+      // 🆕 Astuce : On ajoute aussi ton IP pour les images si tu charges tes avatars sur mobile !
+      {
+        protocol: "http",
+        hostname: "10.111.0.225",
+        port: "1234",
+        pathname: "/uploads/**",
       },
     ],
   },

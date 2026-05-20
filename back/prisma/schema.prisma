@@ -32,6 +32,7 @@ model Hunt {
   difficulty  Int      @default(1)
   city        String?
   createdAt   DateTime @default(now())
+  status      String   @default("brouillon")
 
   // Les coordonnées précises du point de départ !
   startLat Float?

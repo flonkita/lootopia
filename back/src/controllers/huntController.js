@@ -35,6 +35,7 @@ exports.createHunt = async (req, res) => {
     const {
       title,
       description,
+      status,
       difficulty,
       city,
       creatorId,
@@ -55,6 +56,7 @@ exports.createHunt = async (req, res) => {
       data: {
         title,
         description,
+        status,
         difficulty: parseInt(difficulty), // On s'assure que c'est un nombre
         city,
         creatorId: parseInt(creatorId), // L'ID doit être un entier

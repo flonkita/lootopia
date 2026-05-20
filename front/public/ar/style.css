@@ -1,0 +1,162 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100dvh;
+}
+
+body {
+  font-family: sans-serif;
+  background: #0f0f0f;
+  color: white;
+  overflow: hidden;
+}
+
+#menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  gap: 16px;
+  background: linear-gradient(160deg, #1a1a2e, #0f0f0f);
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+}
+
+#menu h1 {
+  font-size: 32px;
+  color: gold;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+#menu p {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 24px;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+}
+
+#menu button,
+#win-screen button,
+#back-btn {
+  background: gold;
+  color: black;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 16px 40px;
+  border-radius: 50px;
+  width: 240px;
+}
+
+#back-btn {
+  width: auto;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 7px 20px;
+  font-size: 13px;
+}
+
+#ar-view {
+  display: none;
+}
+
+#ar-view.active {
+  display: block;
+}
+
+a-scene {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#camera-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+#ar-ui {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+#status {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+#win-screen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  gap: 16px;
+}
+
+#win-screen.show {
+  display: flex;
+}
+
+#win-screen .emoji {
+  font-size: 72px;
+}
+
+#win-screen h2 {
+  font-size: 28px;
+  color: gold;
+}
+
+#win-screen p {
+  font-size: 16px;
+  color: #ccc;
+  max-width: 280px;
+}
+
+#win-screen button {
+  background: gold;
+  color: black;
+  font-weight: bold;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-size: 16px;
+}
