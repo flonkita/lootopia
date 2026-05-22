@@ -12,12 +12,13 @@ const nextConfig: NextConfig = {
       // 🆕 Astuce : On ajoute aussi ton IP pour les images si tu charges tes avatars sur mobile !
       {
         protocol: "http",
-        hostname: "10.111.0.225",
+        hostname: "10.111.0.103",
         port: "1234",
         pathname: "/uploads/**",
       },
     ],
   },
+  
 };
 
 export default nextConfig;
