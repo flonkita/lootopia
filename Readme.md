@@ -91,10 +91,29 @@ npm run dev
 - **`/back/prisma`** : Schéma de la base de données, migrations et scripts de seeding.
 
 ---
-
 ## 🗺️ Core Gameplay & AR Integration *(Milestone - May 2026)*
 
-La boucle de gameplay principale est entièrement fonctionnelle, optimisée pour le **mobile**, et calibrée pour des tests réels autour du campus **Sup de Vinci Bordeaux (Chartrons)**.
+La boucle de gameplay principale est entièrement fonctionnelle, optimisée pour le **mobile**, et calibrée pour des tests réels autour du campus **Sup de Vinci Bordeaux (Chartrons)**. Elle a été testée et validée avec succès sur le terrain.
+
+### 🚀 Fonctionnalités clés de la boucle :
+* **Radar de proximité :** Calcul de distance ultra-précis via le capteur Haversine pour guider le chasseur jusqu'au point de rassemblement.
+* **Immersion RA (AR.js) :** Ouverture fluide de la caméra et instanciation du coffre au trésor en 3D dans l'environnement réel du joueur.
+* **Interface UX immersive :** Écran de victoire doté d'un voile sombre translucide (`backdrop-filter: blur`) permettant de fêter la victoire tout en gardant le trésor visuel et la caméra visibles en arrière-plan.
+* **Gamification synchrone :** Connexion sécurisée au backend (Prisma/PostgreSQL) pour une mise à jour instantanée du profil (XP gagnée, compteur de chasses incrémenté) dès la validation du butin, avec un système de verrouillage contre les doubles clics accidentels.
+
+## 📱 Accès à la Réalité Augmentée en Réseau Local (HTTP)
+
+Par sécurité, Google Chrome bloque l'accès à la caméra sur les sites qui n'utilisent pas le protocole HTTPS. Pour tester **Lootopia** sur votre smartphone en réseau local (`http://10.111.0.103:3000`), suivez ces étapes simples :
+
+1. Sur le navigateur Chrome de votre smartphone, accédez à l'adresse suivante :
+   `chrome://flags/#unsafely-treat-insecure-origin-as-secure`
+2. Activez l'option (**Enabled**).
+3. Dans le champ de texte en dessous, renseignez l'adresse IP de déploiement de l'application (ex: `http://10.111.0.103:3000`).
+4. Cliquez sur **Relaunch** en bas à droite pour redémarrer Chrome.
+
+🚀 *La caméra s'ouvrira désormais sans problème et vous pourrez déterrer les trésors !*
+
+---
 
 ### 🧪 Workflow de Test sur Smartphone (Wi-Fi Local)
 
@@ -120,8 +139,7 @@ La boucle de gameplay principale est entièrement fonctionnelle, optimisée pour
 
  [x] **EPIC 4** : Transition et affichage d'un coffre au trésor en Réalité Augmentée 3D (AFrame / AR.js) avec bypass des modales de blocage des capteurs mobiles.
  
- [ ] **EPIC 5** : Sauvegarde de fin de quête et attribution automatique de l'XP en BDD *(En cours 🚧)*.
-
+ [x] **EPIC 5** : Sauvegarde de fin de quête, attribution automatique de l'XP en BDD, incrémentation du compteur de chasses et contournement des restrictions IP privées de Next.js.
 ---
 
 > *Fait avec passion, patience, et quelques oignons fondus à feu très doux. 💻🔥*  
