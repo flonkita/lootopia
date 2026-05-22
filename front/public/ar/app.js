@@ -1,6 +1,7 @@
-// 🏴‍☠️ 1. Récupération de l'ID de la chasse depuis l'URL de Next.js
+// 🏴‍☠️ 1. Récupération de l'ID de la chasse et du Token JWT
 const urlParams = new URLSearchParams(window.location.search);
 const huntId = urlParams.get("huntId");
+const token = localStorage.getItem("token"); // 🔑 Récupère le token de connexion de Lootopia
 
 console.log("🏴‍☠️ Chasse active récupérée en RA :", huntId);
 
@@ -23,6 +24,7 @@ const STATE = {
     find: "🔍 Tourne-toi pour trouver le trésor !",
     found: "🎉 Trésor trouvé !",
   },
+  isSubmitting: false, // 🔒 Notre nouveau verrou de sécurité
 };
 
 const dom = {};
@@ -97,6 +99,7 @@ function initializeCamera(stream) {
   dom.video.srcObject = stream;
 }
 
+// ... (startAR reste inchangé)
 function startAR() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     alert("❌ Votre appareil ne prend pas en charge la caméra.");
@@ -115,14 +118,55 @@ function startAR() {
     });
 }
 
-// 🎯 AJUSTEMENT US10 & EPIC 5 : Le clic sur le coffre
-function handleTreasureClick() {
-  stopCamera(); // On coupe le flux caméra dès qu'on a trouvé pour économiser la batterie
+// 🎯 AJUSTEMENT ÉPIC 5 : Envoi de l'XP au clic sur le coffre
+async function handleTreasureClick() {
+  // 🛡️ Si on est déjà en train d'envoyer la progression, on ignore complètement les autres clics
+  if (STATE.isSubmitting) return;
+
+  // Activer le verrou immédiatement
+  STATE.isSubmitting = true;
+
+  // On affiche l'écran de victoire par-dessus la caméra active
   showWinScreen();
 
-  // TO DO POUR L'ÉPIC 5 :
-  // C'est ici qu'on va déclencher un fetch() vers ton API Express
-  // pour dire : "L'utilisateur connecté a fini la chasse 'huntId', donne-lui ses XP !"
+  if (!huntId || !token) {
+    STATE.isSubmitting = false; // On libère le verrou si erreur de config
+    return;
+  }
+  // 1. On fige l'écran et on coupe la caméra
+  showWinScreen();
+
+  if (!huntId || !token) return;
+
+  try {
+    const response = await fetch(
+      "http://10.111.0.103:1234/api/progression/complete",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ huntId: huntId }),
+      },
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("🏆 Réponse Backend :", data.message);
+      // Optionnel : Tu peux mettre à jour un texte dans ton winScreen pour afficher l'XP gagnée !
+      dom.winScreen.querySelector("p").innerHTML =
+        `Félicitations ! Tu as déterré le coffre et <span style="color: #4ade80; font-weight: bold;">gagné ${data.xpReward} XP</span> !`;
+    } else {
+      console.error("❌ Erreur lors de l'attribution d'XP :", data.message);
+    }
+  } catch (error) {
+    console.error(
+      "❌ Impossible de joindre le serveur de progression :",
+      error,
+    );
+  }
 }
 
 function handleBackToMenu() {
@@ -133,8 +177,6 @@ function handleBackToMenu() {
 function bindEvents() {
   dom.launchBtn.addEventListener("click", startAR);
   dom.backBtn.addEventListener("click", handleBackToMenu);
-
-  // ✅ MODIFICATION : On retire l'écouteur du playAgainBtn pour laisser le 'onclick' HTML de redirection faire son travail !
   dom.treasure.addEventListener("click", handleTreasureClick);
 }
 

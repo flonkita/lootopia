@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
-import Image from 'next/image';
 
 interface User {
     id: number;
@@ -12,7 +11,7 @@ interface User {
     username: string;
     xp: number;
     completedHunts: number;
-    avatar: string; 
+    avatar: string;
 }
 
 export default function Dashboard() {
@@ -39,18 +38,18 @@ export default function Dashboard() {
 
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Cache-Control': 'no-cache' // 🚫 Bloque le cache pour forcer la mise à jour !
+                 }
                 });
 
                 setUser(response.data);
                 setEditEmail(response.data.email);
                 setEditUsername(response.data.username || '');
 
-                // Si le joueur a déjà un avatar en BDD, on l'affiche
-                if (response.data.avatar) {
-                    // ⚠️ Assure-toi que l'URL de base correspond à ton backend (ex: http://localhost:XXXX)
-                    setAvatarPreview(`http://localhost:1234${response.data.avatar}`);
-                }
+                // 💡 On ne force pas l'écriture de avatarPreview ici ! 
+                // On laisse la fonction getAvatarUrl s'occuper de l'affichage de la BDD.
 
             } catch (error) {
                 console.error("Erreur de token :", error);
@@ -88,12 +87,16 @@ export default function Dashboard() {
         }
     };
 
-    // 🖼️ NOUVELLES FONCTIONS POUR L'AVATAR
+    // 🖼️ GESTION FLUIDE DE L'AVATAR (TACTIQUE A-2)
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
+        const file = e.target.files?.[0];
+        if (file) {
+            // 1. Correction de la variable d'état pour l'envoi
             setAvatarFile(file);
-            setAvatarPreview(URL.createObjectURL(file));
+
+            // 2. ⚡ Génération de la preview locale instantanée pour le rendu immédiat
+            const localUrl = URL.createObjectURL(file);
+            setAvatarPreview(localUrl);
         }
     };
 
@@ -106,7 +109,6 @@ export default function Dashboard() {
         formData.append('avatar', avatarFile);
 
         try {
-            // Axios va automatiquement générer le bon header "multipart/form-data" pour nous !
             const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/avatar`, formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -115,7 +117,9 @@ export default function Dashboard() {
             if (user) {
                 setUser({ ...user, avatar: response.data.avatarUrl });
             }
+
             setAvatarFile(null); // On vide le fichier en attente
+            setAvatarPreview(null); // ✅ On nettoie la preview locale pour laisser l'image serveur prendre le relais
             setUpdateMessage({ type: 'success', text: 'Avatar hissé avec succès ! 🏴‍☠️' });
             setTimeout(() => setUpdateMessage({ type: '', text: '' }), 3000);
 
@@ -124,6 +128,21 @@ export default function Dashboard() {
             setUpdateMessage({ type: 'error', text: "Une tempête a empêché l'envoi de l'image." });
         }
     };
+
+    const getAvatarUrl = (avatarName: string | null | undefined) => {
+        if (!avatarName) return null;
+        if (avatarName.startsWith('http')) return avatarName;
+
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '');
+
+        // 🎯 Nettoyage : Si le nom contient déjà "/uploads/" ou "uploads/", on le retire
+        const cleanName = avatarName.replace(/^\/?uploads\//, '');
+
+        return `${baseUrl}/uploads/${cleanName}`;
+    };
+
+    // 💡 Priorité absolue à la preview locale temporaire, sinon l'image en BDD
+    const avatarSrc = avatarPreview || getAvatarUrl(user?.avatar);
 
     if (loading) {
         return (
@@ -168,13 +187,22 @@ export default function Dashboard() {
                                 </div>
                             )}
 
-                            {/* 🖼️ ZONE AVATAR (Toujours visible) */}
+                            {/* 🖼️ ZONE AVATAR (Contourne définitivement l'erreur Private IP) */}
                             <div className="flex flex-col items-center gap-3 mb-6 pb-6 border-b border-slate-600">
-                                <div className="w-24 h-24 rounded-full border-2 border-yellow-500 overflow-hidden bg-slate-800 flex items-center justify-center">
-                                    {avatarPreview ? (
-                                        <Image src={avatarPreview} alt="Avatar" width={96} height={96} className="w-full h-full object-cover" unoptimized={true} />
+                                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 flex items-center justify-center bg-slate-800">
+                                    {avatarSrc ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={avatarSrc}
+                                            alt="Avatar du Chasseur"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                // 🎯 Fallback magique inline : Un émoji pirate si le serveur n'a pas l'image
+                                                e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='75' x='10'>🏴‍☠️</text></svg>";
+                                            }}
+                                        />
                                     ) : (
-                                        <span className="text-xs text-slate-400 text-center">Pas de blason</span>
+                                        <span className="text-slate-400">Pas de blason</span>
                                     )}
                                 </div>
 

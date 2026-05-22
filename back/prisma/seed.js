@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient(); // Utilise le client classique autonome pour le seed
 
 async function main() {
@@ -10,12 +11,13 @@ async function main() {
   await prisma.user.deleteMany({ where: { email: "florent@lootopia.fr" } });
 
   console.log("🤠 Création du profil du Capitaine...");
-  // On crée l'utilisateur créateur des chasses
+  const hashedPassword = await bcrypt.hash("password123", 10); // 👈 On hash le mot de passe de démo
+
   const creatorUser = await prisma.user.create({
     data: {
       username: "Florent",
       email: "florent@lootopia.fr",
-      password: "password123", // Un mot de passe fictif pour le test
+      password: hashedPassword, // ✅ Enregistré proprement pour ton contrôleur de login
     },
   });
 

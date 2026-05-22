@@ -80,14 +80,23 @@ const login = async (req, res) => {
 // 👤 US3 - Profil (Récupérer mes infos)
 const getMe = async (req, res) => {
   try {
-    // req.user est ajouté par le middleware (on le fera juste après)
-    const user = await prisma.user.findUnique({
+    // 🎯 On re-requête la BDD pour avoir l'XP et les chasses actualisées en temps réel !
+    const freshUser = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, username: true, email: true, createdAt: true, avatar: true }, // On exclut le password
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        xp: true,
+        completedHunts: true,
+        avatar: true,
+      },
     });
-    res.json(user);
+
+    return res.status(200).json(freshUser);
   } catch (error) {
-    res.status(500).json({ message: "Erreur serveur" });
+    console.error(error);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
 };
 

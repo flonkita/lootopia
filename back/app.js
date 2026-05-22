@@ -22,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 const huntRoutes = require('./src/routes/huntRoutes');
 const authRoutes = require("./src/routes/authRoutes");
 const userRoutes = require("./src/routes/userRoutes");
+const progressionRoutes = require("./src/routes/progressionRoutes");
 
 // Montage des routes (Mounting)
 // Toutes les routes d'authRoutes commenceront par /api/auth
@@ -32,5 +33,7 @@ app.use('/api/hunts', huntRoutes);
 app.use('/api/users', userRoutes);
 // Rendre le dossier "uploads" accessible publiquement
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Toutes les routes de progressionRoutes commenceront par /api/progression
+app.use("/api/progression", progressionRoutes);
 
 module.exports = app;
