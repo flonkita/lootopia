@@ -27,6 +27,43 @@ const STATE = {
   isSubmitting: false, // 🔒 Notre nouveau verrou de sécurité
 };
 
+async function init() {
+  console.log("🎬 Initialisation du module RA...");
+
+  // 🛡️ RADAR DE SÉCURITÉ : On teste les permissions avant qu'AR.js ne se lance
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        console.log("✅ Caméra activée avec succès !");
+        // Optionnel : Si tu stockes le flux dans ton STATE
+        STATE.videoStream = stream;
+      })
+      .catch((err) => {
+        console.error("❌ Erreur de caméra :", err);
+
+        // On affiche le message d'erreur rouge bien visible sur l'écran du téléphone
+        // Assure-toi que "dom.statusDisplay" ou ton élément de texte existe bien
+        const statusElement =
+          document.querySelector("#status-text") || dom?.statusDisplay;
+        if (statusElement) {
+          statusElement.innerHTML =
+            "❌ Erreur : L'accès à la caméra est requis pour la Réalité Augmentée !";
+          statusElement.style.color = "#ef4444"; // Un beau rouge alerte
+        }
+      });
+  } else {
+    console.error(
+      "❌ Les API MediaDevices ne sont pas supportées sur ce navigateur.",
+    );
+  }
+
+  // ... Le reste de ton code d'initialisation de la scène AR ...
+}
+
+// Lancement au chargement
+window.onload = init;
+
 const dom = {};
 
 function query(selector) {
@@ -87,6 +124,8 @@ function activateAR() {
   showElement(dom.arView);
   updateStatus(STATE.statusText.find);
 }
+
+
 
 function deactivateAR() {
   hideWinScreen();

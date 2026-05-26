@@ -1,7 +1,7 @@
 const prisma = require("../config/db"); // Ton instance Prisma globale
 
 exports.completeHunt = async (req, res) => {
-  const { huntId } = req.body;
+  const { huntId, userLat, userLng } = req.body;
   const userId = req.user.id;
 
   try {
