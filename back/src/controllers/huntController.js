@@ -30,69 +30,75 @@ exports.getAllHunts = async (req, res) => {
 
 // 2. Créer une chasse (POST /)
 exports.createHunt = async (req, res) => {
-  try {
-    // On récupère les infos envoyées par le Front (ou Insomnia)
-    const {
-      title,
-      description,
-      status,
-      difficulty,
-      city,
-      creatorId,
-      startLat,
-      startLng,
-      steps, // 🆕 NOUVEAU : On récupère le tableau d'étapes
-    } = req.body;
+  const {
+    title,
+    description,
+    difficulty,
+    city,
+    status,
+    startLat,
+    startLng,
+    steps,
+  } = req.body;
 
-    // Validation basique
-    if (!title || !creatorId) {
-      return res
-        .status(400)
-        .json({ message: "Titre et CreatorId obligatoires" });
+  console.log("🕵️‍♂️ [LOOTOPIA-DEBUG] req.user :", req.user);
+
+  try {
+    // 🎯 RECHERCHE TOUT-TERRAIN : On cherche 'id' OU 'userId' pour parer toutes les variantes du middleware
+    const rawId = req.user ? req.user.id || req.user.userId : null;
+    const creatorId = rawId ? parseInt(rawId, 10) : null;
+
+    if (!creatorId || isNaN(creatorId)) {
+      return res.status(401).json({
+        message:
+          "❌ Action refusée : Identifiant du créateur introuvable dans la session.",
+        debugReceivedUser: req.user, // Petit bonus pour t'aider à voir l'objet direct dans le Front si besoin
+      });
     }
 
-    // Création dans la BDD
-    const newHunt = await prisma.hunt.create({
+    // 🚀 Création dans la BDD avec la liaison relationnelle exigée par ton Schéma
+    const createdHunt = await prisma.hunt.create({
       data: {
         title,
         description,
-        status,
-        difficulty: parseInt(difficulty), // On s'assure que c'est un nombre
-        city,
-        creatorId: parseInt(creatorId), // L'ID doit être un entier
+        difficulty: parseInt(difficulty, 10) || 1,
+        city: city || "Bordeaux",
+        startLat: parseFloat(startLat),
+        startLng: parseFloat(startLng),
+        status: status || "publie",
 
-        // 📍 NOUVEAU : On ajoute les coordonnées de départ (converties en Float pour Prisma)
-        startLat: startLat ? parseFloat(startLat) : null,
-        startLng: startLng ? parseFloat(startLng) : null,
+        // 🔗 Liaison relationnelle connectée à l'ID valide
+        creator: {
+          connect: { id: creatorId },
+        },
 
-        // 🗺️ NOUVEAU : La magie Prisma pour créer les étapes en même temps
-        ...(steps &&
-          steps.length > 0 && {
-            steps: {
-              create: steps.map((step) => ({
-                title: step.title, // 👈 Corrigé ici
-                description: step.description,
-                order: parseInt(step.order),
-                latitude: parseFloat(step.latitude),
-                longitude: parseFloat(step.longitude),
-              })),
-            },
-          }),
-      },
-      // 🔍 NOUVEAU : On dit à Prisma de nous renvoyer la chasse AVEC ses étapes dans la réponse
-      include: {
-        steps: true,
+        // 🧱 ÉTAPES IMBRIQUÉES
+        steps:
+          steps && Array.isArray(steps)
+            ? {
+                create: steps.map((step, index) => ({
+                  title: step.title,
+                  description: step.description,
+                  latitude: parseFloat(step.latitude),
+                  longitude: parseFloat(step.longitude),
+                  order: index + 1,
+                })),
+              }
+            : undefined,
       },
     });
 
-    res.status(201).json({
-      status: "success",
-      message: "Chasse créée avec succès !",
-      data: newHunt,
-    });
+    console.log(
+      `✨ [DATABASE] Nouvelle quête "${title}" créée et liée au créateur ID: ${creatorId}`,
+    );
+    return res.status(201).json({ success: true, data: createdHunt });
   } catch (error) {
-    // On affiche l'erreur COMPLÈTE dans le terminal pour comprendre !
     console.error("🔥 ERREUR CRÉATION PRISMA :", error.message);
-    res.status(500).json({ message: "Impossible de créer la chasse." });
+    return res
+      .status(500)
+      .json({
+        message:
+          "Erreur interne du serveur lors de la création de la quête avec Prisma.",
+      });
   }
 };

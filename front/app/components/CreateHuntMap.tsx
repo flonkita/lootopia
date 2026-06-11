@@ -87,6 +87,7 @@ export default function CreateHuntMap() {
     };
 
     // Envoi de la cargaison complète au Backend Express via Prisma
+    // Envoi de la cargaison complète au Backend Express via Prisma
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -94,15 +95,15 @@ export default function CreateHuntMap() {
             return alert("Mille sabords ! Place d'abord un point de départ en OR sur la carte ! 🏁");
         }
 
+        // 🛡️ Payload épuré : Le serveur déduira lui-même le créateur via le Token JWT
         const huntData = {
             title,
             description,
             difficulty,
             city,
-            status, // 📁 Enregistre "brouillon" ou "publie"
+            status, // Enregistre "brouillon" ou "publie"
             startLat,
             startLng,
-            creatorId: 1, // À lier au state utilisateur global plus tard
             steps: steps.map((step) => ({
                 order: step.order,
                 title: step.title,
@@ -115,9 +116,17 @@ export default function CreateHuntMap() {
         console.log("⚓ CARGAISON ENVOYÉE AU BACKEND :", huntData);
 
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token'); // 🔑 Récupération du badge d'accès
+
+            if (!token) {
+                return alert("❌ Erreur : Session expirée. Connecte-toi avant de publier une quête.");
+            }
+
+            // 🚀 Envoi asynchrone sécurisé avec les Headers requis
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/hunts`, huntData, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: {
+                    Authorization: `Bearer ${token}` // 🛡️ Évite l'erreur 401 Unauthorized
+                }
             });
 
             alert(`🎉 Chasse enregistrée avec succès au statut ${status} !`);
@@ -129,9 +138,17 @@ export default function CreateHuntMap() {
             setStartLng(null);
             setSteps([]);
             setPlacementMode("start");
-        } catch (error) {
-            console.error(error);
-            alert("Une tempête a empêché la création de la chasse.");
+        } catch (error) { // 🛑 On laisse 'error' sans typage direct ici (exigé par TS en catch)
+            console.error("🔥 Erreur lors de l'envoi de la quête :", error);
+
+            // 🎯 On utilise un "Type Guard" d'Axios pour valider et typer l'erreur proprement
+            if (axios.isAxiosError(error)) {
+                const errorMsg = error.response?.data?.message || "Une tempête a empêché la création de la chasse.";
+                alert(`❌ Échec : ${errorMsg}`);
+            } else {
+                // Au cas où c'est une erreur de code purement JS
+                alert("❌ Une erreur inattendue est survenue.");
+            }
         }
     };
 

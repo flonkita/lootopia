@@ -157,6 +157,7 @@ export default function Map() {
       return;
     }
 
+    // 1️⃣ Cas : Validation du point de départ
     if (currentStepIndex === -1) {
       if (selectedHunt && selectedHunt.steps.length > 0) {
         alert("🏁 Balise de départ validée ! Place aux indices !");
@@ -168,17 +169,20 @@ export default function Map() {
       return;
     }
 
+    // 2️⃣ Cas : Passage à l'étape suivante
     const nextIndex = currentStepIndex + 1;
     if (selectedHunt && nextIndex < selectedHunt.steps.length) {
       alert(`✨ Étape ${currentStepIndex + 1} validée !`);
       setCurrentStepIndex(nextIndex);
     } else {
-      // 🕶️ REDIRECTION VERS L'ÉPIC 4 (RÉALITÉ AUGMENTÉE)
+      // 3️⃣ Cas : Fin du parcours -> REDIRECTION DYNAMIQUE VERS LA RA (ÉPIC 4 & 5)
       alert("🏆 MILLE SABORDS ! Le coffre final est enfoui juste ici... Active l'appareil photo pour le faire apparaître ! 📸");
 
       if (selectedHunt) {
-        // On envoie le joueur sur le prototype AR statique et on passe l'ID de la chasse dans l'URL
-        window.location.href = `/ar/index.html?huntId=${selectedHunt.id}`;
+        // 🔥 Correction : On récupère l'URL d'API du .env et on redirige DIRECTEMENT !
+        const dynamicApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:1234";
+
+        window.location.href = `/ar/index.html?huntId=${selectedHunt.id}&apiUrl=${encodeURIComponent(dynamicApiUrl)}`;
       } else {
         setSelectedHunt(null);
       }
